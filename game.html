@@ -32,8 +32,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <!-- Favicon: a red map pin drawn as inline SVG. -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff385c' d='M16 2C9.4 2 4 7.2 4 13.7 4 22.5 16 30 16 30s12-7.5 12-16.3C28 7.2 22.6 2 16 2z'/%3E%3Ccircle cx='16' cy='13.5' r='5' fill='%23fff'/%3E%3C/svg%3E" />
-  <!-- Game stylesheet. ?v=10 is a version number: changing it forces browsers to download the new file instead of a cached old one. -->
-  <link rel="stylesheet" href="css/game.css?v=10" />
+  <!-- Game stylesheet. ?v=11 is a version number: changing it forces browsers to download the new file instead of a cached old one. -->
+  <link rel="stylesheet" href="css/game.css?v=11" />
 </head>
 <!-- BODY: the order of these layers matters; CSS z-index decides what appears on top. -->
 <body>
@@ -237,13 +237,13 @@
   <!-- SCRIPTS: loaded at the end so the HTML above exists before the code runs. Order matters: -->
   <!-- 1) Three.js 3D library from a CDN, needed by everything below. -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
-  <!-- 2) theme.js: light/dark toggle. ?v=10 busts the browser cache when files change. -->
-  <script src="js/theme.js?v=10"></script>
+  <!-- 2) theme.js: light/dark toggle. ?v=11 busts the browser cache when files change. -->
+  <script src="js/theme.js?v=11"></script>
   <!-- 3) models.js: builds the 3D runners, vehicles and landmarks. -->
-  <script src="js/models.js?v=10"></script>
+  <script src="js/models.js?v=11"></script>
   <!-- 4) pvp.js: online match code (create/join rooms, send scores between players). -->
-  <script src="js/pvp.js?v=10"></script>
+  <script src="js/pvp.js?v=11"></script>
   <!-- 5) game.js: the main game loop, controls, HUD and menus. Loads last because it uses all of the above. -->
-  <script src="js/game.js?v=10"></script>
+  <script src="js/game.js?v=11"></script>
 </body>
 </html>

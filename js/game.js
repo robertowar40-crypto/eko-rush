@@ -2395,8 +2395,11 @@
       ui.countdown.classList.add('pop');
       // Beep (higher for GO).
       Sound.beep(n <= 0);
-      // GO: start running.
-      if (n <= 0) goRun();
+      // GO: start running, and clear "GO!" once its animation has finished.
+      if (n <= 0) {
+        goRun();
+        setTimeout(() => { if (ui.countdown.textContent === 'GO!') { ui.countdown.textContent = ''; ui.countdown.classList.remove('pop'); } }, 950);
+      }
     }
   }
 

@@ -194,7 +194,8 @@ body.pvp .solo-only { display: none !important; }
 /* Big 3-2-1 countdown in the middle of the screen; clamp() scales it with screen width. */
 .countdown { position: fixed; inset: 0; z-index: 15; display: grid; place-items: center; pointer-events: none; font-size: clamp(5rem, 22vw, 12rem); font-weight: 900; color: #fff; text-shadow: 0 8px 40px rgba(255, 56, 92, 0.7), 0 2px 0 rgba(0, 0, 0, 0.25); letter-spacing: -0.04em; }
 /* JS adds .pop for each number, playing the cd animation: zooms in, holds, then shrinks and fades. */
-.countdown.pop { animation: cd 0.9s var(--ease); }
+/* "forwards" keeps the faded-out final frame, so the text doesn't reappear when the animation ends. */
+.countdown.pop { animation: cd 0.9s var(--ease) forwards; }
 @keyframes cd { 0% { transform: scale(2.2); opacity: 0; } 25% { transform: scale(1); opacity: 1; } 80% { opacity: 1; } 100% { transform: scale(0.8); opacity: 0; } }
 /* Floating pop-up text (centred via translateX(-50%)), invisible until .show plays the pop animation. */
 .popup { position: fixed; left: 50%; top: 38%; z-index: 12; transform: translateX(-50%); pointer-events: none; font-weight: 900; font-size: clamp(1.2rem, 3.4vw, 1.8rem); color: #fff; text-shadow: 0 3px 16px rgba(0, 0, 0, 0.45); opacity: 0; white-space: nowrap; }
