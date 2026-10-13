@@ -2,6 +2,8 @@
 
 A 3D endless runner set on the streets of Lagos, Nigeria, built with plain HTML, CSS, JavaScript and [Three.js](https://threejs.org/). Dodge danfos, BRT buses and kekes, grab a jetpack and fly over traffic, and race a friend on the same course. All of this runs in the browser with nothing to install.
 
+**Play it now: [robertowar40-crypto.github.io/eko-rush](https://robertowar40-crypto.github.io/eko-rush/)**
+
 ## Features
 
 - **Lagos landmarks:** run past the National Theatre, NECOM House, the Civic Centre, Tafawa Balewa Square, the Lekki–Ikoyi Link Bridge, Third Mainland Bridge and Eko Atlantic.
@@ -45,7 +47,7 @@ You can also open `index.html` directly from disk, although a local server is re
 2. Send your friend the link or the 6-character code.
 3. When they join, the host presses **Start race**.
 
-Players connect directly through WebRTC, using the free [PeerJS](https://peerjs.com/) cloud service to find each other, so both computers need an internet connection. A `localhost` link only works on your own computer. If the game isn't hosted online, your friend can run their own copy and type in your code instead.
+Players connect directly through WebRTC, using the free [PeerJS](https://peerjs.com/) cloud service to find each other, so both computers need an internet connection. On the [hosted version](https://robertowar40-crypto.github.io/eko-rush/), the shared link opens straight into your match. A `localhost` link only works on your own computer, so if you're running it locally, your friend needs their own copy and has to type in your code.
 
 ## Project structure
 
