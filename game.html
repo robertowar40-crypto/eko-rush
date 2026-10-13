@@ -1,122 +1,199 @@
 <!DOCTYPE html>
+<!-- ============================================================ -->
+<!-- EKO RUSH: GAME PAGE (game.html) -->
+<!-- This page runs the actual 3D endless runner. It contains: -->
+<!-- the full-screen game canvas, the HUD (score, coins, power-ups), the start menu -->
+<!-- with Solo / Vs-a-friend tabs and a runner picker, the PvP lobby views, and pause and game-over overlays. -->
+<!-- Styles: css/game.css. Logic: js/game.js (gameplay) and js/pvp.js (online races). -->
+<!-- ============================================================ -->
 <html lang="en">
+<!-- HEAD: page settings, fonts and styles. -->
 <head>
+  <!-- UTF-8 so characters like the naira sign display correctly. -->
   <meta charset="UTF-8" />
+  <!-- Fit the screen on phones. maximum-scale=1 and user-scalable=no stop pinch-zoom so swipes control the game; -->
+  <!-- viewport-fit=cover lets the game fill the whole screen, including behind notches. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <!-- Text shown in the browser tab. -->
   <title>Play Eko Rush – Lagos endless runner</title>
+  <!-- Colour of the browser's address bar on mobile. -->
   <meta name="theme-color" content="#ffffff" />
+  <!-- Theme-flash prevention: applies the saved light/dark theme before anything is drawn. -->
   <script>
+    // Use the saved theme (localStorage key: ekorush-theme), or the system dark-mode setting if none is saved.
+    // It is stored as data-theme on <html>, which the CSS uses to choose colours.
+    // If localStorage is unavailable, fall back to the light theme.
     (function () { try { var t = localStorage.getItem('ekorush-theme'); if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.dataset.theme = t; } catch (e) { document.documentElement.dataset.theme = 'light'; } })();
   </script>
+  <!-- Preconnect to Google Fonts so the font loads faster. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Plus Jakarta Sans font in the weights used by the UI. -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Favicon: a red map pin drawn as inline SVG. -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff385c' d='M16 2C9.4 2 4 7.2 4 13.7 4 22.5 16 30 16 30s12-7.5 12-16.3C28 7.2 22.6 2 16 2z'/%3E%3Ccircle cx='16' cy='13.5' r='5' fill='%23fff'/%3E%3C/svg%3E" />
+  <!-- Game stylesheet. ?v=10 is a version number: changing it forces browsers to download the new file instead of a cached old one. -->
   <link rel="stylesheet" href="css/game.css?v=10" />
 </head>
+<!-- BODY: the order of these layers matters; CSS z-index decides what appears on top. -->
 <body>
+  <!-- The 3D game world is drawn on this full-screen canvas by js/game.js (using Three.js). -->
   <canvas id="game-canvas"></canvas>
+  <!-- Red screen flash shown briefly when you get hit (JS toggles the .on class). -->
   <div class="flash" id="flash"></div>
+  <!-- Dark edges around the screen that appear at high speed for a sense of motion. -->
   <div class="speed-vignette" id="vignette"></div>
 
+  <!-- Loading screen shown while the game starts up; JS adds .done to fade it out. -->
   <div class="loading" id="loading"><div><div class="spin"></div>Loading Lagos…</div></div>
 
+  <!-- TOP BAR: buttons on the left, score display on the right. -->
   <div class="topbar">
+    <!-- Left group of round buttons. -->
     <div class="cluster">
+      <!-- Home button: back to the landing page. aria-label and title name the icon-only button. -->
       <a class="chip-btn" href="index.html" aria-label="Back to home" title="Home">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7M5 10v10h14V10"/></svg>
       </a>
+      <!-- Pause button. .hud means it only shows while playing; .solo-only hides it in PvP races (you cannot pause a race). -->
       <button class="chip-btn hud solo-only" id="pause-btn" aria-label="Pause" title="Pause (P)">
         <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
       </button>
+      <!-- Light/dark theme toggle (found by js/theme.js via data-theme-toggle). CSS shows the sun or moon icon. -->
       <button class="chip-btn theme-toggle" data-theme-toggle aria-label="Toggle theme">
         <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
         <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <!-- Sound on/off toggle (also the M key). JS adds .muted, and CSS then swaps the speaker icons. -->
       </button>
       <button class="chip-btn sound" id="sound-btn" aria-label="Toggle sound" title="Sound (M)">
         <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
         <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4zM22 9l-6 6M16 9l6 6"/></svg>
       </button>
     </div>
+    <!-- Score area (top right), visible only while playing because of the .hud class. -->
     <div class="hud hud-score">
+      <!-- Current score, updated every frame by js/game.js. -->
       <div class="score" id="score">0</div>
+      <!-- Score multiplier and collected naira coins. -->
       <div class="cluster">
         <span class="pill mult" id="mult">x1</span>
         <span class="pill"><span class="coin-ic">₦</span><span id="coins">0</span></span>
       </div>
+      <!-- Opponent status pill for PvP races: shows your friend's progress. Hidden until a race starts. -->
       <div class="pill opp" id="opp-pill" hidden>
         <span class="opp-dot"></span><span id="opp-text">Friend</span>
       </div>
     </div>
   </div>
 
+  <!-- Active power-ups with countdown bars; js/game.js adds and removes items here. -->
   <div class="powers" id="powers"></div>
+  <!-- Toast message with a map-pin icon, e.g. announcing the landmark you are passing (text set via id="toast-text"). -->
   <div class="toast" id="toast"><span class="pin"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C8 2 5 5 5 9c0 5.3 7 13 7 13s7-7.7 7-13c0-4-3-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg></span><span id="toast-text"></span></div>
+  <!-- Floating pop-up text such as combo or power-up messages. -->
   <div class="popup" id="popup"></div>
+  <!-- 3-2-1 countdown before a run. aria-live="assertive" makes screen readers announce each number immediately. -->
   <div class="countdown" id="countdown" aria-live="assertive"></div>
 
   <!-- MENU -->
+  <!-- Start menu overlay (shown before a run). js/game.js shows/hides it. -->
   <div class="overlay" id="menu">
+    <!-- The white (or dark) card holding the menu content. -->
     <div class="panel">
+      <!-- Brand line: pin logo and game name. -->
       <div class="brand"><svg viewBox="0 0 32 32"><path fill="currentColor" d="M16 2C9.4 2 4 7.2 4 13.7 4 22.5 16 30 16 30s12-7.5 12-16.3C28 7.2 22.6 2 16 2z"/><path fill="#fff" d="M13 9h7l-3 4.5h3.5L12 22l2.5-6H11z"/></svg>Eko Rush</div>
       <h1>Run Lagos.</h1>
+      <!-- Mode tabs: Solo or Vs a friend. JS reads data-mode and updates aria-selected so screen readers know which tab is active. -->
       <div class="tabs" role="tablist" aria-label="Game mode">
         <button class="tab active" role="tab" data-mode="solo" aria-selected="true">Solo run</button>
         <button class="tab" role="tab" data-mode="pvp" aria-selected="false">Vs a friend</button>
       </div>
+      <!-- Runner picker: label, then one button per character. -->
       <div class="label">Choose your runner</div>
       <div class="runners" id="runners">
+        <!-- Each button's data-runner says which character it selects; the .sw circle is a colour swatch of their outfit (inline style). -->
         <button class="runner-btn" data-runner="tunde"><div class="sw" style="background:conic-gradient(#f28c28 0 25%,#1b4d89 0 50%,#fdd835 0 75%,#ff385c 0)"></div><strong>Tunde</strong><small>Yaba</small></button>
         <button class="runner-btn" data-runner="amaka"><div class="sw" style="background:conic-gradient(#6a1b9a 0 25%,#fbc02d 0 50%,#00897b 0 75%,#e91e63 0)"></div><strong>Amaka</strong><small>Lekki</small></button>
         <button class="runner-btn" data-runner="seun"><div class="sw" style="background:linear-gradient(90deg,#0b8a4f 33%,#fff 0 66%,#0b8a4f 0)"></div><strong>Seun</strong><small>Surulere</small></button>
       </div>
 
+      <!-- SOLO view: shown when the Solo tab is active. -->
       <div id="solo-actions">
+        <!-- Short description of the selected runner, filled in by JS. -->
         <p class="tagline" id="tagline"></p>
+        <!-- Starts a solo run. -->
         <button class="btn btn-primary" id="play-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Start running</button>
+        <!-- Best score and total naira, loaded from localStorage by JS. -->
         <div class="meta"><span>Best: <b id="best">0</b></span><span>Total ₦ collected: <b id="bank">0</b></span></div>
+        <!-- Keyboard controls reminder (hidden on small screens). -->
         <div class="keys-hint"><kbd>←</kbd> <kbd>→</kbd> lanes · <kbd>↑</kbd>/<kbd>Space</kbd> jump · <kbd>↓</kbd> roll · swipe on mobile</div>
       </div>
 
+      <!-- PVP view: shown when the Vs a friend tab is active. It has three sub-views; js/pvp.js shows one at a time. -->
       <div id="pvp-actions" hidden>
+        <!-- PvP step 1 (idle): create a match or join one with a code. -->
         <div id="pvp-idle">
+          <!-- Explanation of how racing a friend works. -->
           <p class="small">Race a friend on the same course. Create a match, send them the link, and the higher score wins.</p>
+          <!-- Creates a new match and generates an invite link. -->
           <button class="btn btn-primary" id="host-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg> Create match &amp; get link</button>
+          <!-- Divider line with text in the middle. -->
           <div class="or"><span>or join with a code</span></div>
+          <!-- Join form: type a friend's 6-character code. autocomplete="off" stops the browser suggesting old values. -->
           <form class="join-row" id="join-form" autocomplete="off">
+            <!-- Code input (max 6 characters). aria-label names it for screen readers because there is no visible label. -->
             <input id="join-code" maxlength="6" placeholder="ABC123" aria-label="Match code" spellcheck="false" />
+            <!-- Submits the form to join the match. -->
             <button class="btn btn-ghost" type="submit">Join</button>
           </form>
         </div>
+        <!-- PvP step 2 (waiting): you created a match and are waiting for your friend to join. -->
         <div id="pvp-wait" hidden>
+          <!-- Shows the match code (filled in by JS). -->
           <div class="code-box"><span>Match code</span><strong id="room-code">······</strong></div>
+          <!-- Read-only invite link with a Copy button. -->
           <div class="link-row"><input id="room-link" readonly aria-label="Invite link" /><button class="btn btn-ghost" id="copy-link">Copy link</button></div>
+          <!-- Share button using the phone's share sheet; JS only shows it on devices that support sharing. -->
           <button class="btn btn-ghost share-btn" id="share-link" hidden>Share…</button>
+          <!-- Connection status with a spinning indicator. -->
           <p class="status"><span class="spinner"></span><span id="pvp-status">Connecting…</span></p>
+          <!-- Cancel the match and return to step 1. -->
           <button class="btn btn-ghost wide" id="pvp-cancel">Cancel</button>
         </div>
+        <!-- PvP step 3 (ready): both players are connected. -->
         <div id="pvp-ready" hidden>
+          <!-- You vs your friend, with names filled in by JS. -->
           <div class="versus">
             <div><b id="me-name">Tunde</b><small>You</small></div>
             <span>VS</span>
             <div><b id="opp-name">…</b><small>Friend</small></div>
           </div>
+          <!-- Host only: starts the race for both players. -->
           <button class="btn btn-primary" id="race-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Start race</button>
+          <!-- Guest only: message shown while waiting for the host to start. -->
           <p class="status" id="guest-wait" hidden><span class="spinner"></span>Waiting for the host to start the race…</p>
+          <!-- Leave the match. -->
           <button class="btn btn-ghost wide" id="pvp-leave">Leave match</button>
         </div>
+        <!-- Error message area (e.g. invalid code), hidden until needed. -->
         <p class="pvp-error" id="pvp-error" hidden></p>
+        <!-- Small note text, filled in by JS. -->
         <p class="pvp-note" id="pvp-note"></p>
       </div>
     </div>
   </div>
 
   <!-- PAUSE -->
+  <!-- Pause overlay: .center dims and blurs the game behind it. Hidden until you pause. -->
   <div class="overlay center" id="pause" hidden>
+    <!-- Centred card. -->
     <div class="panel" style="text-align:center">
+      <!-- Title and message. -->
       <h2>Paused</h2>
       <p>Lagos will wait for you.</p>
+      <!-- Continue the current run. -->
       <button class="btn btn-primary" id="resume-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Resume</button>
+      <!-- Secondary actions: restart the run or go back to the menu. -->
       <div class="btn-row">
         <button class="btn btn-ghost" id="restart-btn">Restart</button>
         <button class="btn btn-ghost" id="quit-btn">Menu</button>
@@ -125,21 +202,31 @@
   </div>
 
   <!-- GAME OVER -->
+  <!-- Game over overlay: shows your results. Hidden until the run ends. -->
   <div class="overlay center" id="over" hidden>
+    <!-- Centred card. -->
     <div class="panel" style="text-align:center">
+      <!-- Badge shown only when you beat your best score. -->
       <span class="newbest" id="newbest" hidden>New high score!</span>
+      <!-- Title and subtitle; JS changes them for PvP results (win/lose). -->
       <h2 id="over-title">Oga LASTMA don catch you!</h2>
       <p id="over-sub">Better luck next run.</p>
+      <!-- Solo results: score, naira collected and distance (filled in by JS). -->
       <div class="stats" id="solo-stats">
         <div><strong id="o-score">0</strong><span>Score</span></div>
         <div><strong id="o-coins">0</strong><span>Naira</span></div>
         <div><strong id="o-dist">0m</strong><span>Distance</span></div>
       </div>
+      <!-- PvP results: your result vs your friend's. JS adds .win to the winner's box. -->
       <div class="race-result" id="race-result" hidden>
+        <!-- Your result. -->
         <div class="rr" id="rr-me"><small>You</small><b id="rr-me-name">Tunde</b><strong id="rr-me-score">0</strong><span id="rr-me-dist">0m</span></div>
+        <!-- Your friend's result (shows "running..." until they finish). -->
         <div class="rr" id="rr-opp"><small>Friend</small><b id="rr-opp-name">…</b><strong id="rr-opp-score">0</strong><span id="rr-opp-dist">running…</span></div>
       </div>
+      <!-- Play again (in PvP the label changes, e.g. to a rematch). -->
       <button class="btn btn-primary" id="again-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg> <span id="again-label">Run again</span></button>
+      <!-- Change runner (back to the menu) or go to the home page. -->
       <div class="btn-row">
         <button class="btn btn-ghost" id="change-btn">Change runner</button>
         <a class="btn btn-ghost" href="index.html">Home</a>
@@ -147,10 +234,16 @@
     </div>
   </div>
 
+  <!-- SCRIPTS: loaded at the end so the HTML above exists before the code runs. Order matters: -->
+  <!-- 1) Three.js 3D library from a CDN, needed by everything below. -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+  <!-- 2) theme.js: light/dark toggle. ?v=10 busts the browser cache when files change. -->
   <script src="js/theme.js?v=10"></script>
+  <!-- 3) models.js: builds the 3D runners, vehicles and landmarks. -->
   <script src="js/models.js?v=10"></script>
+  <!-- 4) pvp.js: online match code (create/join rooms, send scores between players). -->
   <script src="js/pvp.js?v=10"></script>
+  <!-- 5) game.js: the main game loop, controls, HUD and menus. Loads last because it uses all of the above. -->
   <script src="js/game.js?v=10"></script>
 </body>
 </html>

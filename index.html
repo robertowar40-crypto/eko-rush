@@ -1,44 +1,80 @@
 <!DOCTYPE html>
+<!-- ============================================================ -->
+<!-- EKO RUSH: LANDING PAGE (index.html) -->
+<!-- This is the first page visitors see. It introduces the game, shows -->
+<!-- interactive 3D models (danfo bus, landmarks, runners) and links to game.html. -->
+<!-- Styles live in css/styles.css; behaviour lives in js/theme.js, js/models.js and js/landing.js. -->
+<!-- ============================================================ -->
 <html lang="en">
+<!-- HEAD: information for the browser (encoding, title, fonts, styles). Nothing here is shown on the page itself. -->
 <head>
+  <!-- Use UTF-8 so special characters like the naira sign and Yoruba accents (È, ó) display correctly. -->
   <meta charset="UTF-8" />
+  <!-- Make the page fit phone screens; viewport-fit=cover lets it extend under notches (handled with safe-area CSS). -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!-- Text shown in the browser tab and in search results. -->
   <title>Eko Rush – A 3D endless runner through Lagos, Nigeria</title>
+  <!-- Short summary used by search engines and link previews when the page is shared. -->
   <meta name="description" content="Run, jump and roll through the streets of Lagos. Dodge danfos, keke and BRT buses past the National Theatre, Third Mainland Bridge and Lekki-Ikoyi Link Bridge." />
+  <!-- Colour of the browser's address bar on mobile. -->
   <meta name="theme-color" content="#ffffff" />
+  <!-- Theme-flash prevention: this tiny script runs BEFORE the page is drawn, so the correct light/dark theme -->
+  <!-- is applied immediately instead of flashing the wrong colours for a moment. -->
   <script>
+    // Read the saved theme ('light' or 'dark') from localStorage (key: ekorush-theme).
+    // If nothing is saved yet, follow the operating system's dark-mode setting.
+    // The result is stored as data-theme on <html>, which the CSS uses to pick colours.
+    // try/catch: if localStorage is blocked (e.g. private browsing), fall back to light.
     (function () { try { var t = localStorage.getItem('ekorush-theme'); if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.dataset.theme = t; } catch (e) { document.documentElement.dataset.theme = 'light'; } })();
   </script>
+  <!-- Preconnect: open a connection to Google Fonts early so the font downloads faster. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Load the Plus Jakarta Sans font in the weights we use (400 regular up to 800 extra-bold). -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Favicon (the tab icon): a red map pin drawn as an inline SVG, so no extra image file is needed. -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff385c' d='M16 2C9.4 2 4 7.2 4 13.7 4 22.5 16 30 16 30s12-7.5 12-16.3C28 7.2 22.6 2 16 2z'/%3E%3Ccircle cx='16' cy='13.5' r='5' fill='%23fff'/%3E%3C/svg%3E" />
+  <!-- Main stylesheet for the landing page. -->
   <link rel="stylesheet" href="css/styles.css" />
 </head>
+<!-- BODY: everything visible on the page. -->
 <body>
+  <!-- Custom mouse cursor: a ring and a dot that js/landing.js moves to follow the mouse. -->
+  <!-- aria-hidden="true" hides them from screen readers because they are purely decorative. -->
   <div class="cursor-ring" aria-hidden="true"></div>
   <div class="cursor-dot" aria-hidden="true"></div>
 
+  <!-- NAVIGATION BAR: fixed to the top of the screen. js/landing.js uses id="nav" to add a border once you scroll. -->
   <header class="nav" id="nav">
+    <!-- .container keeps content centred with a max width; .nav-inner lays out logo, links and buttons in a row. -->
     <div class="container nav-inner">
+      <!-- Logo: links back to the top of the page. aria-label gives screen readers a readable name. -->
       <a href="#" class="logo" aria-label="Eko Rush home">
         <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 2C9.4 2 4 7.2 4 13.7 4 22.5 16 30 16 30s12-7.5 12-16.3C28 7.2 22.6 2 16 2z"/><path fill="#fff" d="M13 9h7l-3 4.5h3.5L12 22l2.5-6H11z"/></svg>
         <span>Eko<b>Rush</b></span>
       </a>
+      <!-- Section links. id="nav-links" lets the mobile menu button open and close this list. -->
       <ul class="nav-links" id="nav-links">
+        <!-- Each href="#..." jumps to the section with that id further down the page. -->
         <li><a href="#features">Game</a></li>
         <li><a href="#landmarks">Landmarks</a></li>
         <li><a href="#runners">Runners</a></li>
         <li><a href="#how">How to play</a></li>
       </ul>
+      <!-- Right side of the nav: theme toggle, Play button and (on small screens) the menu button. -->
       <div class="nav-actions">
+        <!-- Light/dark theme toggle. js/theme.js finds it via the data-theme-toggle attribute. -->
+        <!-- It contains a sun and a moon icon; CSS shows only the one that matches the current theme. -->
         <button class="icon-btn theme-toggle" data-theme-toggle aria-label="Toggle theme">
           <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
           <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
         </button>
+        <!-- Main call-to-action: opens the game page. -->
         <a class="btn btn-primary" href="game.html">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><span>Play now</span>
         </a>
+        <!-- Hamburger menu button, only visible on small screens (see CSS media queries). -->
+        <!-- aria-expanded tells screen readers if the menu is open (updated by JS); aria-controls points at the list it opens. -->
         <button class="icon-btn menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
@@ -46,22 +82,33 @@
     </div>
   </header>
 
+  <!-- MAIN: the main content of the page, split into sections. -->
   <main>
     <!-- HERO -->
+    <!-- Hero section: the full-screen intro area at the top. id="top" is the target for the logo link. -->
     <section class="hero" id="top">
+      <!-- 3D canvas: js/landing.js draws the interactive danfo bus (and other models) here using Three.js. -->
       <canvas id="hero-canvas" aria-label="Interactive 3D danfo bus that follows your cursor"></canvas>
+      <!-- Speech bubble that pops up when you click the bus to honk. Shown/hidden by JS via the .show class. -->
       <div class="bubble" id="bubble">Oshodi! Oshodi!</div>
+      <!-- Hero text sits on top of the 3D canvas. -->
       <div class="container hero-content">
+        <!-- Left column with the headline, intro text, buttons and stats. -->
         <div class="hero-copy">
+          <!-- Small badge with a pulsing dot and a mini Nigerian flag made of three <i> stripes (styled in CSS). -->
           <div class="badge"><span class="dot"></span> Made in Lagos <span class="flag" aria-label="Nigeria"><i></i><i></i><i></i></span></div>
+          <!-- Main headline. The .accent span gets the red gradient text effect. -->
           <h1>Run the streets <br />of <span class="accent">Èkó</span>.</h1>
+          <!-- Intro paragraph. -->
           <p class="lead">A 3D endless runner through Lagos. Dodge danfos, jump onto BRT buses and outrun LASTMA, all the way from the National Theatre to the Third Mainland Bridge.</p>
+          <!-- Hero buttons: start the game, or scroll to the landmarks section. -->
           <div class="hero-ctas">
             <a class="btn btn-primary" href="game.html">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Start running
             </a>
             <a class="btn btn-ghost" href="#landmarks">Explore landmarks</a>
           </div>
+          <!-- Quick facts shown as big numbers with small labels. -->
           <div class="hero-stats">
             <div><strong>7</strong><span>Lagos landmarks</span></div>
             <div><strong>3</strong><span>Runners to pick</span></div>
@@ -69,11 +116,15 @@
           </div>
         </div>
       </div>
+      <!-- 3D playground toolbar: buttons to switch which model is shown in the hero canvas. -->
+      <!-- role="toolbar" and aria-label describe this group of buttons to screen readers. -->
       <div class="playground" role="toolbar" aria-label="3D playground">
+        <!-- Hint text explaining how to interact with the model (hidden on small screens). -->
         <span class="hint">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V6a2 2 0 1 1 4 0v5M13 10V4.5a2 2 0 1 1 4 0V12M17 8.5a2 2 0 1 1 4 0V15a7 7 0 0 1-7 7h-1.5A7 7 0 0 1 6 18l-2.6-4.4a2 2 0 0 1 3.4-2L9 15"/></svg>
           It follows your cursor. Drag to spin, click to honk.
         </span>
+        <!-- Model buttons. js/landing.js reads data-model (0 to 4) to know which model to show; .active marks the current one. -->
         <button class="pill active" data-model="0">Danfo</button>
         <button class="pill" data-model="1">Keke</button>
         <button class="pill" data-model="2">National Theatre</button>
@@ -83,39 +134,51 @@
     </section>
 
     <!-- FEATURES -->
+    <!-- Features section: id="features" is the target of the "Game" nav link. -->
     <section id="features">
+      <!-- Centred, width-limited wrapper. -->
       <div class="container">
+        <!-- Section heading. The .reveal class makes it fade/slide in when scrolled into view (js/landing.js adds .in). -->
         <div class="section-head reveal">
+          <!-- Small coloured label above the title. -->
           <span class="eyebrow">The game</span>
           <h2 class="section-title">Lagos traffic, but you're the fastest thing on the road.</h2>
           <p class="section-sub">Three lanes, endless hustle. Every run takes you past real Lagos landmarks, rebuilt in 3D and lit up at night.</p>
         </div>
+        <!-- Grid of feature cards (3 columns on desktop, fewer on smaller screens). -->
         <div class="features">
+          <!-- Feature card: traffic vehicles. -->
           <article class="feature reveal">
+            <!-- Icon in a rounded coloured square, followed by the card title and description. -->
             <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="11" rx="2"/><path d="M3 11h18M7 17v2M17 17v2M7 14h.01M17 14h.01"/></svg></div>
             <h3>Danfo, keke and BRT</h3>
             <p>Yellow danfos, keke napep and BRT buses fill the road. Jump over them, roll under them, or ride the ramps onto their roofs.</p>
           </article>
+          <!-- Feature card: real Lagos landmarks. -->
           <article class="feature reveal">
             <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg></div>
             <h3>Real landmarks</h3>
             <p>National Theatre, NECOM House, TBS, Civic Centre, Eko Atlantic, plus both bridges over the lagoon.</p>
           </article>
+          <!-- Feature card: naira coins and power-ups. -->
           <article class="feature reveal">
             <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 16V8l8 8V8M6.5 11h11M6.5 13h11"/></svg></div>
             <h3>Collect naira, grab power-ups</h3>
             <p>Grab ₦ coins and pick up magnets, super sneakers and 2X multipliers to push your high score.</p>
           </article>
+          <!-- Feature card: day and night themes. -->
           <article class="feature reveal">
             <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></div>
             <h3>Day and night</h3>
             <p>Switch themes and the city changes with it: at night the street lamps glow, windows light up and the Link Bridge shines purple.</p>
           </article>
+          <!-- Feature card: jetpack power-up. -->
           <article class="feature reveal">
             <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="4.5" height="12" rx="2.2"/><rect x="13.5" y="3" width="4.5" height="12" rx="2.2"/><path d="M8.2 15v2l-1 3M15.8 15v2l1 3"/></svg></div>
             <h3>Jetpack boosters</h3>
             <p>Grab a jetpack and fly above the danfos for eight seconds, collecting a trail of naira in the sky.</p>
           </article>
+          <!-- Feature card: multiplayer race against a friend. -->
           <article class="feature reveal">
             <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.5 20a5.5 5.5 0 0 1 11 0M10.5 20a5.5 5.5 0 0 1 11 0"/></svg></div>
             <h3>Race a friend</h3>
@@ -126,19 +189,30 @@
     </section>
 
     <!-- LANDMARKS -->
+    <!-- Landmarks section: .section-soft gives it a slightly different background colour. -->
     <section id="landmarks" class="section-soft">
+      <!-- Centred wrapper for the landmark explorer. -->
       <div class="container">
+        <!-- Section heading (fades in on scroll). -->
         <div class="section-head reveal">
           <span class="eyebrow">Landmark explorer</span>
           <h2 class="section-title">Lagos, rebuilt in 3D.</h2>
           <p class="section-sub">Every landmark appears in the game. Pick one, then drag to spin it around.</p>
         </div>
+        <!-- Landmark explorer: a list of landmarks on the left and a 3D viewer on the right. -->
         <div class="explorer reveal">
+          <!-- Empty list that js/landing.js fills with one button per landmark. -->
+          <!-- role="tablist" tells assistive technology that these buttons switch what the viewer shows. -->
           <div class="lm-list" id="lm-list" role="tablist" aria-label="Landmarks"></div>
+          <!-- 3D viewer box. -->
           <div class="viewer">
+            <!-- Canvas where the selected landmark is rendered in 3D and can be dragged to rotate. -->
             <canvas id="landmark-canvas" aria-label="3D landmark viewer"></canvas>
+            <!-- Small "Drag to rotate" label in the corner. -->
             <span class="viewer-tag">Drag to rotate</span>
+            <!-- Info card about the selected landmark. aria-live="polite" makes screen readers announce it when JS changes the text. -->
             <div class="viewer-info" aria-live="polite">
+              <!-- Location, name and fun fact: filled in by js/landing.js using these ids. -->
               <span class="place" id="lm-place"></span>
               <h3 id="lm-name"></h3>
               <p id="lm-fact"></p>
@@ -149,22 +223,32 @@
     </section>
 
     <!-- RUNNERS -->
+    <!-- Runners section: introduces the three playable characters. -->
     <section id="runners">
+      <!-- Centred wrapper. -->
       <div class="container">
+        <!-- Centred section heading (fades in on scroll). -->
         <div class="section-head center reveal">
           <span class="eyebrow">Choose your runner</span>
           <h2 class="section-title">Three Lagosians. One LASTMA officer on your tail.</h2>
           <p class="section-sub">Each runner has their own Lagos style: ankara, gele, fila and a Super Eagles jersey.</p>
         </div>
+        <!-- Grid of character cards. data-c on each card picks its background colour in CSS. -->
         <div class="chars">
+          <!-- Character card: Tunde. -->
           <article class="char reveal" data-c="tunde">
+            <!-- Character image. It has no src: js/landing.js renders the 3D runner named in data-runner and sets the image. -->
+            <!-- alt text describes the picture for screen readers. -->
             <div class="art"><img data-runner="tunde" alt="Tunde, 3D runner in an ankara shirt and red cap" /></div>
+            <!-- Card text: name, short bio and a row of tags. -->
             <div class="body"><h3>Tunde</h3><p>Yaba tech bro. Fastest legs on Herbert Macaulay Way.</p><div class="tags"><span class="tag">Ankara shirt</span><span class="tag">Red cap</span><span class="tag">Yaba</span></div></div>
           </article>
+          <!-- Character card: Amaka. -->
           <article class="char reveal" data-c="amaka">
             <div class="art"><img data-runner="amaka" alt="Amaka, 3D runner in a gele headwrap" /></div>
             <div class="body"><h3>Amaka</h3><p>Lekki fashion queen. Her gele stays on at 30 km/h.</p><div class="tags"><span class="tag">Gele</span><span class="tag">Gold earrings</span><span class="tag">Lekki</span></div></div>
           </article>
+          <!-- Character card: Seun. -->
           <article class="char reveal" data-c="seun">
             <div class="art"><img data-runner="seun" alt="Seun, 3D runner in a green-white-green jersey and fila cap" /></div>
             <div class="body"><h3>Seun</h3><p>Surulere footballer. Fila tilted, never offside.</p><div class="tags"><span class="tag">Fila</span><span class="tag">Jersey #9</span><span class="tag">Surulere</span></div></div>
@@ -174,20 +258,30 @@
     </section>
 
     <!-- HOW TO PLAY -->
+    <!-- How-to-play section: controls and obstacles. -->
     <section id="how" class="section-soft">
+      <!-- Centred wrapper. -->
       <div class="container">
+        <!-- Centred section heading (fades in on scroll). -->
         <div class="section-head center reveal">
           <span class="eyebrow">How to play</span>
           <h2 class="section-title">Swipe or use the arrow keys.</h2>
           <p class="section-sub">Works on desktop, tablet and phone. Bump into the side of a vehicle twice and LASTMA catches you.</p>
         </div>
+        <!-- Grid of control steps. <kbd> elements are styled to look like keyboard keys. -->
         <div class="howto">
+          <!-- Step: change lanes. -->
           <div class="step reveal"><div class="keys"><kbd>←</kbd><kbd>→</kbd></div><h3>Switch lanes</h3><p>A / D or swipe left and right</p></div>
+          <!-- Step: jump. -->
           <div class="step reveal"><div class="keys"><kbd>↑</kbd><kbd>Space</kbd></div><h3>Jump</h3><p>W or swipe up. Clears barriers and keke.</p></div>
+          <!-- Step: roll. -->
           <div class="step reveal"><div class="keys"><kbd>↓</kbd></div><h3>Roll</h3><p>S or swipe down. Gets you under the ÈKÓ signs.</p></div>
+          <!-- Step: pause. -->
           <div class="step reveal"><div class="keys"><kbd>P</kbd><kbd>Esc</kbd></div><h3>Pause</h3><p>Take a breather. Lagos will wait.</p></div>
         </div>
+        <!-- Grid of obstacles and how to deal with each one. -->
         <div class="dangers">
+          <!-- Each card: emoji and name in bold, then a short tip. -->
           <div class="danger reveal"><strong>🚌 Danfo</strong><span>Dodge it, or time a jump to land on the roof</span></div>
           <div class="danger reveal"><strong>🛺 Keke</strong><span>Low enough to hop onto</span></div>
           <div class="danger reveal"><strong>🚍 BRT bus</strong><span>Take the ramp and run along the roof</span></div>
@@ -197,29 +291,44 @@
       </div>
     </section>
 
+    <!-- CALL TO ACTION: the final red banner encouraging visitors to play. -->
     <section>
+      <!-- Centred wrapper. -->
       <div class="container">
+        <!-- Red gradient banner (fades in on scroll). -->
         <div class="cta reveal">
+          <!-- Banner heading and text. -->
           <div>
             <h2>Ready to beat Lagos traffic?</h2>
             <p>No downloads, no sign-up. Runs in your browser.</p>
           </div>
+          <!-- White Play button inside the banner. -->
           <a class="btn" href="game.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Play Eko Rush</a>
         </div>
       </div>
     </section>
   </main>
 
+  <!-- FOOTER: copyright and credits at the bottom of the page. -->
   <footer>
+    <!-- Footer row (wraps onto two lines on small screens). -->
     <div class="container foot">
+      <!-- The empty span with id="year" is filled with the current year by js/landing.js. -->
       <span>© <span id="year"></span> Eko Rush · A fan-made tribute to Lagos, Nigeria.</span>
+      <!-- Credits line. -->
       <span>Built with HTML5 + Three.js · Èkó ò ní bàjẹ́ ❤️</span>
     </div>
   </footer>
 
+  <!-- SCRIPTS: loaded at the end of the body so the page content appears first. -->
+  <!-- Order matters: each file can use what the files above it defined. -->
+  <!-- 1) Three.js, the 3D library (from a CDN), must load first because models.js and landing.js use it. -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+  <!-- 2) theme.js: handles the light/dark toggle button and saves the choice. -->
   <script src="js/theme.js"></script>
+  <!-- 3) models.js: builds the 3D models (vehicles, landmarks, runners) shared by the landing page and the game. -->
   <script src="js/models.js"></script>
+  <!-- 4) landing.js: page behaviour (hero 3D scene, landmark explorer, custom cursor, scroll reveals, mobile menu). -->
   <script src="js/landing.js"></script>
 </body>
 </html>
